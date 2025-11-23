@@ -1,0 +1,5 @@
+{
+  "name": "MediFlow Intel",
+  "description": "An Intelligent Hospital Workflow System with AI-driven Epidemic Detection, featuring role-based access for Doctors, Pharmacists, and Administrators.",
+  "requestFramePermissions": []
+}
