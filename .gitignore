@@ -1,0 +1,18 @@
+# Build artifacts
+*.exe
+*.o
+*.obj
+
+# Data files (optional - keep if you want seed data, remove if you want fresh installs)
+# users.txt
+# drugs.txt
+# prescriptions.txt
+# transactions.txt
+
+# OS generated files
+Thumbs.db
+Desktop.ini
+
+# Editor directories
+.vscode/
+.idea/

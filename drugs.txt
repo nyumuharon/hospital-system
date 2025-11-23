@@ -1,0 +1,82 @@
+Paracetamol,50,90,01/01/2026,20
+Amoxicillin,120,100,01/06/2025,15
+Ibuprofen,80,2000,15/03/2026,50
+Insulin,200,200,10/12/2025,10
+Metformin,150,1005,20/08/2026,30
+Cough Syrup,90,120,05/05/2025,10
+Aspirin,60,800,11/11/2026,40
+Antacid,45,250,30/09/2025,20
+Vitamin C,30,400,14/02/2026,25
+Pain Relief Gel,75,100,01/07/2025,10
+Penicillin,130,900,12/12/2025,30
+Cetirizine,55,180,18/04/2026,15
+Chloroquine,110,104,22/01/2026,10
+Erythromycin,145,700,19/06/2025,25
+Hydrocortisone,175,600,03/03/2026,20
+Prednisolone,160,1100,25/08/2025,40
+Zinc Tablets,40,330,09/09/2026,15
+Multivitamin,70,250,14/10/2025,20
+Loratadine,65,200,01/01/2026,15
+Omeprazole,85,190,15/05/2025,10
+Diclofenac,90,170,20/11/2026,15
+Folic Acid,35,220,08/08/2025,20
+Doxycycline,140,600,12/02/2026,30
+Enalapril,95,120,30/04/2025,10
+Warfarin,120,90,17/07/2026,10
+Heparin,250,30,05/12/2025,5
+Metronidazole,100,180,28/02/2026,15
+Ciprofloxacin,135,70,10/10/2025,10
+Levofloxacin,145,80,15/01/2026,10
+Moxifloxacin,190,50,20/03/2025,5
+Ranitidine,75,20,01/06/2026,5
+Pantoprazole,95,150,14/09/2025,15
+Esomeprazole,105,90,25/12/2026,10
+Lactulose,85,110,04/04/2025,10
+Oral Rehydration Salts,25,500,18/08/2026,30
+Hydrocodone,210,40,01/02/2025,5
+Morphine,300,200,10/11/2026,10
+Codeine,180,700,22/05/2025,25
+Acetaminophen,50,3500,30/01/2026,100
+Clotrimazole Cream,95,1000,14/07/2025,50
+Nystatin,100,800,09/03/2026,40
+Ketoconazole,130,600,12/12/2025,30
+Benzylpenicillin,150,900,01/10/2026,45
+Gentamicin,140,100,15/04/2025,10
+Neomycin,115,140,20/08/2026,15
+Tetracycline,125,100,05/05/2025,10
+Rifampicin,190,600,11/01/2026,30
+Isoniazid,130,800,28/09/2025,40
+Pyrazinamide,160,70,14/02/2026,10
+Ethambutol,170,90,01/06/2025,10
+Streptomycin,180,500,19/11/2026,25
+Chloramphenicol,135,600,03/03/2025,30
+Diazepam,95,1200,25/07/2026,50
+Lorazepam,100,110,09/12/2025,10
+Phenobarbital,110,900,14/04/2026,45
+Phenytoin,120,1000,01/09/2025,50
+Carbamazepine,125,800,15/01/2026,40
+Sodium Valproate,135,700,20/05/2025,35
+Lamotrigine,150,500,08/10/2026,25
+Haloperidol,140,900,12/02/2025,45
+Olanzapine,160,600,30/06/2026,30
+Risperidone,155,700,17/11/2025,35
+Sertraline,145,800,05/03/2026,40
+Fluoxetine,130,1000,28/07/2025,50
+Citalopram,135,900,10/12/2026,45
+Escitalopram,140,600,15/04/2025,30
+Amitriptyline,120,800,20/09/2026,40
+Imipramine,115,900,01/01/2025,45
+Clomipramine,125,700,14/05/2026,35
+Propranolol,95,1500,25/10/2025,75
+Atenolol,90,1600,04/02/2026,80
+Bisoprolol,100,1100,18/06/2025,55
+Nifedipine,105,1400,01/11/2026,70
+Diltiazem,110,1000,10/03/2025,50
+Verapamil,120,90,22/07/2026,10
+Spironolactone,130,60,30/12/2025,5
+Digoxin,140,500,14/04/2026,25
+Nitroglycerin,150,400,09/09/2025,20
+Isosorbide Dinitrate,160,500,12/01/2026,25
+Clopidogrel,170,70,01/05/2025,10
+Aspirin Low Dose,60,3000,15/10/2026,150
+Warfarin Sodium,180,400,20/02/2025,20

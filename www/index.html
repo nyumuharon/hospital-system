@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hospital System AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="login-screen">
+        <div class="login-box">
+            <h2>Hospital System Login</h2>
+            <input type="text" id="username" placeholder="Username">
+            <input type="password" id="password" placeholder="Password">
+            <button onclick="login()">Login</button>
+            <p id="login-error" style="color: red; display: none;">Invalid Credentials</p>
+        </div>
+    </div>
+
+    <div id="dashboard" style="display: none;">
+        <nav>
+            <h1>Hospital AI Dashboard</h1>
+            <div class="tabs">
+                <button id="tab-inventory" onclick="showTab('inventory')">Inventory</button>
+                <button id="tab-triage" onclick="showTab('triage')">Triage</button>
+                <button id="tab-reports" onclick="showTab('reports')">Reports</button>
+                <button onclick="logout()">Logout</button>
+            </div>
+        </nav>
+
+        <div id="inventory" class="tab-content">
+            <h2>Drug Inventory</h2>
+            <button onclick="loadDrugs()">Refresh List</button>
+            <table id="drug-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Quantity</th>
+                        <th>Price</th>
+                        <th>Expiry</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Drugs go here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div id="triage" class="tab-content" style="display: none;">
+            <div class="triage-header">
+                <h2><span style="color: #e74c3c;">&#9889;</span> Triage Assessment - <span id="patient-name">Nderu
+                        gathoni</span></h2>
+                <p>Record vital signs and anthropometric measurements for patient assessment</p>
+            </div>
+
+            <div class="card vital-signs">
+                <div class="card-header">
+                    <h3>&#10084; Vital Signs</h3>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Temperature (°C) *</label>
+                        <input type="number" value="24">
+                    </div>
+                    <div class="form-group">
+                        <label>Pulse (bpm) *</label>
+                        <input type="number" value="72">
+                    </div>
+                    <div class="form-group">
+                        <label>Respiration Rate *</label>
+                        <input type="number" value="16">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Blood Pressure (Systolic) *</label>
+                        <input type="number" value="120">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Blood Pressure (Diastolic) *</label>
+                        <input type="number" value="80">
+                    </div>
+                    <div class="form-group full-width">
+                        <label>Oxygen Saturation (%) *</label>
+                        <input type="number" value="98">
+                    </div>
+                </div>
+            </div>
+
+            <div class="card anthropometric">
+                <div class="card-header">
+                    <h3>&#9878; Anthropometric Measurements</h3>
+                </div>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Weight (kg) *</label>
+                        <input type="number" id="weight" value="70" oninput="calculateBMI()">
+                    </div>
+                    <div class="form-group">
+                        <label>Height (cm) *</label>
+                        <input type="number" id="height" value="170" oninput="calculateBMI()">
+                    </div>
+                    <div class="form-group">
+                        <label>Head Circumference (cm)</label>
+                        <input type="number" placeholder="Optional">
+                    </div>
+                </div>
+                <div class="bmi-result">
+                    <h3>&#128409; BMI Calculation</h3>
+                    <span id="bmi-value" class="bmi-badge">24.2 Normal</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="reports" class="tab-content" style="display: none;">
+            <h2>System Reports</h2>
+            <button onclick="loadReport()">Refresh Report</button>
+            <div class="report-card">
+                <h3>Daily Revenue</h3>
+                <p id="revenue-display">Loading...</p>
+            </div>
+            <div class="report-card">
+                <h3>Total Users</h3>
+                <p id="users-display">Loading...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.protocol === 'file:'
+            ? 'http://localhost:8080/api'
+            : '/api';
+
+        console.log("Using API URL:", API_URL);
+
+        async function login() {
+            const btn = document.querySelector('button[onclick="login()"]');
+            btn.innerText = "Logging in...";
+            btn.disabled = true;
+
+            const u = document.getElementById('username').value;
+            const p = document.getElementById('password').value;
+
+            try {
+                console.log("Fetching login...");
+                const res = await fetch(`${API_URL}/login`, {
+                    method: 'POST',
+                    body: JSON.stringify({ username: u, password: p })
+                });
+                console.log("Response received");
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('login-screen').style.display = 'none';
+                    document.getElementById('dashboard').style.display = 'block';
+
+                    // Role-Based Access Control
+                    const role = data.role;
+                    const tabInventory = document.getElementById('tab-inventory');
+                    const tabTriage = document.getElementById('tab-triage');
+                    const tabReports = document.getElementById('tab-reports');
+
+                    // Reset visibility
+                    tabInventory.style.display = 'none';
+                    tabTriage.style.display = 'none';
+                    tabReports.style.display = 'none';
+
+                    if (role === 'Admin') {
+                        tabInventory.style.display = 'inline-block';
+                        tabTriage.style.display = 'inline-block';
+                        tabReports.style.display = 'inline-block';
+                        showTab('inventory');
+                    } else if (role === 'Doctor') {
+                        tabInventory.style.display = 'inline-block';
+                        tabTriage.style.display = 'inline-block';
+                        showTab('triage'); // Default to Triage for Doctors
+                    } else if (role === 'Pharmacist') {
+                        tabInventory.style.display = 'inline-block';
+                        showTab('inventory');
+                    } else if (role === 'Billing') {
+                        tabReports.style.display = 'inline-block';
+                        showTab('reports');
+                    }
+                } else {
+                    alert("Login Failed: Invalid Credentials");
+                    btn.innerText = "Login";
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                console.error("Login Error:", e);
+                alert("Connection error details: " + e.message);
+                btn.innerText = "Login";
+                btn.disabled = false;
+            }
+        }
+
+        function logout() {
+            location.reload();
+        }
+
+        function showTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+            document.getElementById(tabId).style.display = 'block';
+
+            // Update active state on buttons
+            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            if (activeBtn) activeBtn.classList.add('active');
+
+            if (tabId === 'inventory') loadDrugs();
+            if (tabId === 'reports') loadReport();
+        }
+
+        async function loadDrugs() {
+            const res = await fetch(`${API_URL}/drugs`);
+            const drugs = await res.json();
+
+            const tbody = document.querySelector('#drug-table tbody');
+            tbody.innerHTML = '';
+
+            drugs.forEach(d => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td>${d.name}</td>
+                        <td>${d.quantity}</td>
+                        <td>${d.price}</td>
+                        <td>${d.expiry}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function loadReport() {
+            const res = await fetch(`${API_URL}/report`);
+            const data = await res.json();
+
+            document.getElementById('revenue-display').innerText = `KES ${data.revenue}`;
+            document.getElementById('users-display').innerText = data.total_users;
+        }
+
+        function calculateBMI() {
+            const weight = parseFloat(document.getElementById('weight').value);
+            const heightCm = parseFloat(document.getElementById('height').value);
+
+            if (weight > 0 && heightCm > 0) {
+                const heightM = heightCm / 100;
+                const bmi = (weight / (heightM * heightM)).toFixed(1);
+
+                let status = 'Normal';
+                let color = '#2ecc71'; // Green
+
+                if (bmi < 18.5) { status = 'Underweight'; color = '#f1c40f'; }
+                else if (bmi >= 25 && bmi < 30) { status = 'Overweight'; color = '#e67e22'; }
+                else if (bmi >= 30) { status = 'Obese'; color = '#e74c3c'; }
+
+                const bmiEl = document.getElementById('bmi-value');
+                bmiEl.innerText = `${bmi} ${status}`;
+                bmiEl.style.backgroundColor = color;
+            }
+        }
+    </script>
+</body>
+
+</html>
