@@ -1,20 +1,35 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Hospital System AI
 
-# Run and deploy your AI Studio app
+A comprehensive Hospital Management System built in C++ featuring a custom, lightweight HTTP server and a modern web interface.
 
-This contains everything you need to run your app locally.
+## Features
 
-View your app in AI Studio: https://ai.studio/apps/drive/1XH2ka_7km7j5zu0cthSV2h3TZKcwoNIr
+*   **Core C++ Backend**: Efficient management of users, inventory, prescriptions, and transactions.
+*   **Custom Web Server**: Built from scratch using Winsock, requiring no external web server dependencies (Apache/Nginx).
+*   **Web Dashboard**: A responsive, dark-themed web interface for easy access to hospital data.
+*   **Role-Based Access Control (RBAC)**:
+    *   **Admin**: Full access to Inventory, Triage, and Reports.
+    *   **Doctor**: Access to Triage Assessment and Inventory.
+    *   **Pharmacist**: Access to Drug Inventory.
+    *   **Billing**: Access to Financial Reports.
+*   **Triage Assessment**: Dedicated module for recording vital signs and anthropometric measurements with automatic BMI calculation.
+*   **Digital Signatures**: Secure signing of prescriptions and transactions.
 
-## Run Locally
+## Tech Stack
 
-**Prerequisites:**  Node.js
+*   **Backend**: C++ (Standard Library, Winsock2, Windows CryptoAPI)
+*   **Frontend**: HTML5, CSS3 (Dark Mode), JavaScript (Vanilla)
+*   **Data Persistence**: File-based storage (Text files)
 
+## How to Run
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+1.  Compile the project:
+    ```bash
+    g++ main.cpp HospitalController.cpp DataManager.cpp DigitalSignatureManager.cpp SimpleWebServer.cpp -o HospitalSystem.exe -lws2_32 -lcrypt32
+    ```
+2.  Run the executable:
+    ```bash
+    .\HospitalSystem.exe
+    ```
+3.  Select **Mode 2** to start the Web Server.
+4.  Open your browser and navigate to `http://localhost:8080`.
