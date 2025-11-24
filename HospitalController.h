@@ -46,6 +46,7 @@ public:
     void generateBill(int prescriptionId);
     void processPayment(int transactionId, const std::string& method);
     float getDailyRevenue();
+    std::vector<Transaction>& getTransactions();
 
     // AI & Reporting
     void checkEpidemicTrends();

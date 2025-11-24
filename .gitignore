@@ -16,3 +16,4 @@ Desktop.ini
 # Editor directories
 .vscode/
 .idea/
+node_modules

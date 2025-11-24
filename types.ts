@@ -57,3 +57,15 @@ export interface EpidemicReport {
   recommendations: string[];
   timestamp: string;
 }
+
+export interface DashboardData {
+  revenue: number;
+  lowStock: number;
+  pendingRx: number;
+  recentTransactions: {
+    id: number;
+    amount: number;
+    date: string;
+    method: string;
+  }[];
+}

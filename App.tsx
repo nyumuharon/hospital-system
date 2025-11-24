@@ -4,13 +4,14 @@ import { Sidebar } from './components/Sidebar';
 import { DoctorDashboard } from './pages/DoctorDashboard';
 import { PharmacyDashboard } from './pages/PharmacyDashboard';
 import { EpidemicDashboard } from './pages/EpidemicDashboard';
+import { RealTimeDashboard } from './pages/RealTimeDashboard';
 import { User, Role, Drug, Prescription, Patient } from './types';
 import { INITIAL_INVENTORY } from './services/mockData';
 
 function App() {
   // Auth State
   const [user, setUser] = useState<User | null>(null);
-  
+
   // UI State
   const [activeTab, setActiveTab] = useState('');
 
@@ -22,8 +23,8 @@ function App() {
   useEffect(() => {
     if (user) {
       if (user.role === Role.DOCTOR) setActiveTab('doctor-dash');
-      else if (user.role === Role.PHARMACIST) setActiveTab('pharmacy-dash');
-      else if (user.role === Role.ADMIN) setActiveTab('epidemic-ai');
+      else if (user.role === Role.PHARMACIST) setActiveTab('realtime-dash');
+      else if (user.role === Role.ADMIN) setActiveTab('realtime-dash');
     }
   }, [user]);
 
@@ -37,7 +38,7 @@ function App() {
     setActiveTab('');
   };
 
-  const handlePrescribe = (patientId: string, items: {drugId: string, quantity: number}[]) => {
+  const handlePrescribe = (patientId: string, items: { drugId: string, quantity: number }[]) => {
     if (!user) return;
 
     const newRx: Prescription = {
@@ -87,7 +88,7 @@ function App() {
     setInventory(updatedInventory);
 
     // Update Rx Status
-    setPrescriptions(prev => prev.map(p => 
+    setPrescriptions(prev => prev.map(p =>
       p.id === prescriptionId ? { ...p, status: 'DISPENSED' } : p
     ));
   };
@@ -98,11 +99,11 @@ function App() {
 
   return (
     <div className="flex min-h-screen bg-slate-50 text-slate-900 font-sans">
-      <Sidebar 
-        user={user} 
-        activeTab={activeTab} 
-        setActiveTab={setActiveTab} 
-        onLogout={handleLogout} 
+      <Sidebar
+        user={user}
+        activeTab={activeTab}
+        setActiveTab={setActiveTab}
+        onLogout={handleLogout}
       />
 
       <main className="flex-1 ml-64 p-8 h-screen overflow-hidden">
@@ -110,11 +111,14 @@ function App() {
           <DoctorDashboard onPrescribe={handlePrescribe} />
         )}
         {activeTab === 'pharmacy-dash' && user.role === Role.PHARMACIST && (
-          <PharmacyDashboard 
-            prescriptions={prescriptions} 
+          <PharmacyDashboard
+            prescriptions={prescriptions}
             inventory={inventory}
             onDispense={handleDispense}
           />
+        )}
+        {activeTab === 'realtime-dash' && (
+          <RealTimeDashboard />
         )}
         {activeTab === 'inventory' && user.role === Role.PHARMACIST && (
           <div className="p-6 bg-white rounded-xl shadow-sm h-full overflow-auto">
@@ -138,7 +142,7 @@ function App() {
                       {drug.stock < drug.minThreshold ? (
                         <span className="text-red-600 font-bold bg-red-50 px-2 py-1 rounded text-xs">Low Stock</span>
                       ) : (
-                         <span className="text-green-600 bg-green-50 px-2 py-1 rounded text-xs">OK</span>
+                        <span className="text-green-600 bg-green-50 px-2 py-1 rounded text-xs">OK</span>
                       )}
                     </td>
                   </tr>
@@ -150,7 +154,7 @@ function App() {
         {activeTab === 'epidemic-ai' && user.role === Role.ADMIN && (
           <EpidemicDashboard />
         )}
-        
+
         {/* Placeholder views for menu items not fully implemented in this demo */}
         {(activeTab === 'patient-history' || activeTab === 'admin-reports' || activeTab === 'settings') && (
           <div className="flex items-center justify-center h-full text-slate-400 bg-white rounded-xl border border-dashed border-slate-300">

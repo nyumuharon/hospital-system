@@ -165,8 +165,43 @@ std::string SimpleWebServer::readFile(const std::string& path) {
 std::string SimpleWebServer::handleApiRequest(const std::string& method, const std::string& path, const std::string& body) {
     if (path == "/api/drugs" && method == "GET") return jsonDrugs();
     if (path == "/api/report" && method == "GET") return jsonReport();
+    if (path == "/api/dashboard" && method == "GET") return jsonDashboard();
     if (path == "/api/login" && method == "POST") return jsonLogin(body);
     return "{\"error\": \"Endpoint not found\"}";
+}
+
+std::string SimpleWebServer::jsonDashboard() {
+    float revenue = controller->getDailyRevenue();
+    
+    int lowStockCount = 0;
+    for (const auto& d : controller->getDrugs()) {
+        if (d.isLowStock()) lowStockCount++;
+    }
+
+    int pendingRx = controller->getPendingPrescriptions().size();
+
+    auto& transactions = controller->getTransactions();
+    std::string recentTx = "[";
+    int count = 0;
+    // Get last 5 transactions
+    for (auto it = transactions.rbegin(); it != transactions.rend() && count < 5; ++it, ++count) {
+        recentTx += "{";
+        recentTx += "\"id\": " + std::to_string(it->id) + ",";
+        recentTx += "\"amount\": " + std::to_string(it->amount) + ",";
+        recentTx += "\"date\": \"" + it->date + "\",";
+        recentTx += "\"method\": \"" + it->paymentMethod + "\"";
+        recentTx += "}";
+        if (count < 4 && count < transactions.size() - 1) recentTx += ",";
+    }
+    recentTx += "]";
+
+    std::string json = "{";
+    json += "\"revenue\": " + std::to_string(revenue) + ",";
+    json += "\"lowStock\": " + std::to_string(lowStockCount) + ",";
+    json += "\"pendingRx\": " + std::to_string(pendingRx) + ",";
+    json += "\"recentTransactions\": " + recentTx;
+    json += "}";
+    return json;
 }
 
 std::string SimpleWebServer::jsonDrugs() {

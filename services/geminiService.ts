@@ -1,12 +1,24 @@
 import { GoogleGenAI, Type } from "@google/genai";
 import { EpidemicReport, SymptomRecord } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+// Lazy initialization - only create AI client when actually needed
+let ai: GoogleGenAI | null = null;
+
+const getAI = () => {
+  if (!ai) {
+    const apiKey = process.env.API_KEY || process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("Gemini API key not configured");
+    }
+    ai = new GoogleGenAI({ apiKey });
+  }
+  return ai;
+};
 
 export const analyzeEpidemicRisks = async (
   symptomData: SymptomRecord[]
 ): Promise<EpidemicReport> => {
-  
+
   const model = 'gemini-2.5-flash';
 
   const prompt = `
@@ -31,7 +43,8 @@ export const analyzeEpidemicRisks = async (
   `;
 
   try {
-    const response = await ai.models.generateContent({
+    const aiInstance = getAI();
+    const response = await aiInstance.models.generateContent({
       model: model,
       contents: prompt,
       config: {
@@ -40,9 +53,9 @@ export const analyzeEpidemicRisks = async (
           type: Type.OBJECT,
           properties: {
             riskLevel: { type: Type.STRING, enum: ["LOW", "MODERATE", "HIGH", "CRITICAL"] },
-            detectedOutbreaks: { 
-              type: Type.ARRAY, 
-              items: { type: Type.STRING } 
+            detectedOutbreaks: {
+              type: Type.ARRAY,
+              items: { type: Type.STRING }
             },
             analysis: { type: Type.STRING },
             recommendations: {
@@ -58,7 +71,7 @@ export const analyzeEpidemicRisks = async (
 
     const text = response.text;
     if (!text) throw new Error("No response from AI");
-    
+
     return JSON.parse(text) as EpidemicReport;
 
   } catch (error) {

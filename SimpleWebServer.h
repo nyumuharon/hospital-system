@@ -25,6 +25,7 @@ private:
     std::string handleApiRequest(const std::string& method, const std::string& path, const std::string& body);
     std::string jsonDrugs();
     std::string jsonReport();
+    std::string jsonDashboard();
     std::string jsonLogin(const std::string& body);
 
 public:

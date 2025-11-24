@@ -2,4 +2,3 @@ admin,admin123,0
 doc,1234,1
 pharm,1234,2
 bill,1234,3
-

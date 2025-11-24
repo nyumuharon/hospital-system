@@ -188,6 +188,10 @@ float HospitalController::getDailyRevenue() {
     return total;
 }
 
+std::vector<Transaction>& HospitalController::getTransactions() {
+    return transactions;
+}
+
 // --- AI & Reporting ---
 void HospitalController::checkEpidemicTrends() {
     std::map<std::string, int> diagnosisCounts;
