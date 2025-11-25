@@ -156,7 +156,24 @@ std::vector<Drug> DataManager::loadDrugs() {
         saveDrugs(drugs);
     }
     return drugs;
+} 
+
+// Adds a new drug to the inventory if it does not already exist
+bool DataManager::addDrug(const Drug& drug) {
+    // Load current list of drugs
+    auto drugs = loadDrugs();
+    // Prevent duplicate drug names
+    for (const auto& d : drugs) {
+        if (d.name == drug.name) {
+            return false;
+        }
+    }
+    // Add new drug and persist
+    drugs.push_back(drug);
+    saveDrugs(drugs);
+    return true;
 }
+
 
 void DataManager::saveDrugs(const std::vector<Drug>& drugs) {
     std::ofstream file("drugs.txt");

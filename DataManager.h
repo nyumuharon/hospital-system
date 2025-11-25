@@ -14,6 +14,7 @@ public:
     static void saveUsers(const std::vector<User>& users);
 
     static std::vector<Drug> loadDrugs();
+    static bool addDrug(const Drug& drug);
     static void saveDrugs(const std::vector<Drug>& drugs);
 
     static std::vector<Prescription> loadPrescriptions();
