@@ -3,30 +3,34 @@
 #include <sstream>
 #include <iostream>
 
+using namespace std;
+
+//================================================================================
 // Helper to split string by delimiter
-std::vector<std::string> split(const std::string& s, char delimiter) {
-    std::vector<std::string> tokens;
-    std::string token;
-    std::istringstream tokenStream(s);
-    while (std::getline(tokenStream, token, delimiter)) {
+//DONE
+vector<string> split(const string& s, char delimiter) {
+    vector<string> tokens;
+    string token;
+    istringstream tokenStream(s);
+    while (getline(tokenStream, token, delimiter)) {
         tokens.push_back(token);
     }
     return tokens;
-}
+}//=================================================================================
 
 // --- Users ---
-std::vector<User> DataManager::loadUsers() {
-    std::vector<User> users;
-    std::ifstream file("users.txt");
-    std::string line;
+vector<User> DataManager::loadUsers() {
+    vector<User> users;
+    ifstream file("users.txt");
+    string line;
     if (file.is_open()) {
-        while (std::getline(file, line)) {
+        while (getline(file, line)) {
             auto parts = split(line, ',');
             if (parts.size() >= 3) {
                 User u;
                 u.username = parts[0];
                 u.password = parts[1];
-                u.role = static_cast<UserRole>(std::stoi(parts[2]));
+                u.role = static_cast<UserRole>(stoi(parts[2]));
                 users.push_back(u);
             }
         }
@@ -42,8 +46,8 @@ std::vector<User> DataManager::loadUsers() {
     return users;
 }
 
-void DataManager::saveUsers(const std::vector<User>& users) {
-    std::ofstream file("users.txt");
+void DataManager::saveUsers(const vector<User>& users) {
+    ofstream file("users.txt");
     for (const auto& u : users) {
         file << u.username << "," << u.password << "," << static_cast<int>(u.role) << "\n";
     }
@@ -51,20 +55,20 @@ void DataManager::saveUsers(const std::vector<User>& users) {
 }
 
 // --- Drugs ---
-std::vector<Drug> DataManager::loadDrugs() {
-    std::vector<Drug> drugs;
-    std::ifstream file("drugs.txt");
-    std::string line;
+vector<Drug> DataManager::loadDrugs() {
+    vector<Drug> drugs;
+    ifstream file("drugs.txt");
+    string line;
     if (file.is_open()) {
-        while (std::getline(file, line)) {
+        while (getline(file, line)) {
             auto parts = split(line, ',');
             if (parts.size() >= 5) {
                 Drug d;
                 d.name = parts[0];
-                d.price = std::stof(parts[1]);
-                d.quantity = std::stoi(parts[2]);
+                d.price = stof(parts[1]);
+                d.quantity = stoi(parts[2]);
                 d.expiryDate = parts[3];
-                d.minThreshold = std::stoi(parts[4]);
+                d.minThreshold = stoi(parts[4]);
                 drugs.push_back(d);
             }
         }
@@ -93,8 +97,8 @@ bool DataManager::addDrug(const Drug& drug) {
 }
 
 
-void DataManager::saveDrugs(const std::vector<Drug>& drugs) {
-    std::ofstream file("drugs.txt");
+void DataManager::saveDrugs(const vector<Drug>& drugs) {
+    ofstream file("drugs.txt");
     for (const auto& d : drugs) {
         file << d.name << "," << d.price << "," << d.quantity << "," << d.expiryDate << "," << d.minThreshold << "\n";
     }
@@ -102,20 +106,20 @@ void DataManager::saveDrugs(const std::vector<Drug>& drugs) {
 }
 
 // --- Prescriptions ---
-std::vector<Prescription> DataManager::loadPrescriptions() {
-    std::vector<Prescription> prescriptions;
-    std::ifstream file("prescriptions.txt");
-    std::string line;
+vector<Prescription> DataManager::loadPrescriptions() {
+    vector<Prescription> prescriptions;
+    ifstream file("prescriptions.txt");
+    string line;
     if (file.is_open()) {
-        while (std::getline(file, line)) {
+        while (getline(file, line)) {
             auto parts = split(line, ',');
             if (parts.size() >= 9) {
                 Prescription p;
-                p.id = std::stoi(parts[0]);
+                p.id = stoi(parts[0]);
                 p.doctorName = parts[1];
                 p.patientName = parts[2];
                 p.drugName = parts[3];
-                p.quantity = std::stoi(parts[4]);
+                p.quantity = stoi(parts[4]);
                 p.date = parts[5];
                 p.status = parts[6];
                 p.diagnosis = parts[7];
@@ -128,8 +132,8 @@ std::vector<Prescription> DataManager::loadPrescriptions() {
     return prescriptions;
 }
 
-void DataManager::savePrescriptions(const std::vector<Prescription>& prescriptions) {
-    std::ofstream file("prescriptions.txt");
+void DataManager::savePrescriptions(const vector<Prescription>& prescriptions) {
+    ofstream file("prescriptions.txt");
     for (const auto& p : prescriptions) {
         file << p.id << "," << p.doctorName << "," << p.patientName << "," 
              << p.drugName << "," << p.quantity << "," << p.date << "," 
@@ -139,18 +143,18 @@ void DataManager::savePrescriptions(const std::vector<Prescription>& prescriptio
 }
 
 // --- Transactions ---
-std::vector<Transaction> DataManager::loadTransactions() {
-    std::vector<Transaction> transactions;
-    std::ifstream file("transactions.txt");
-    std::string line;
+vector<Transaction> DataManager::loadTransactions() {
+    vector<Transaction> transactions;
+    ifstream file("transactions.txt");
+    string line;
     if (file.is_open()) {
-        while (std::getline(file, line)) {
+        while (getline(file, line)) {
             auto parts = split(line, ',');
             if (parts.size() >= 6) {
                 Transaction t;
-                t.id = std::stoi(parts[0]);
-                t.prescriptionId = std::stoi(parts[1]);
-                t.amount = std::stof(parts[2]);
+                t.id = stoi(parts[0]);
+                t.prescriptionId = stoi(parts[1]);
+                t.amount = stof(parts[2]);
                 t.date = parts[3];
                 t.paymentMethod = parts[4];
                 t.signature = parts[5];
@@ -162,8 +166,8 @@ std::vector<Transaction> DataManager::loadTransactions() {
     return transactions;
 }
 
-void DataManager::saveTransactions(const std::vector<Transaction>& transactions) {
-    std::ofstream file("transactions.txt");
+void DataManager::saveTransactions(const vector<Transaction>& transactions) {
+    ofstream file("transactions.txt");
     for (const auto& t : transactions) {
         file << t.id << "," << t.prescriptionId << "," << t.amount << "," 
              << t.date << "," << t.paymentMethod << "," << t.signature << "\n";

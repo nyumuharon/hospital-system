@@ -2,8 +2,10 @@
 #include <iostream>
 #include <sstream>
 
+using namespace std;
+
 // Base64 encoding table
-static const std::string base64_chars = 
+static const string base64_chars = 
              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
              "abcdefghijklmnopqrstuvwxyz"
              "0123456789+/";
@@ -23,11 +25,11 @@ bool DigitalSignatureManager::init() {
         // If doesn't exist, create it
         if (GetLastError() == NTE_BAD_KEYSET) {
             if (!CryptAcquireContext(&hProv, containerName, NULL, PROV_RSA_AES, CRYPT_NEWKEYSET)) {
-                std::cerr << "Error creating key container: " << GetLastError() << "\n";
+                cerr << "Error creating key container: " << GetLastError() << "\n";
                 return false;
             }
         } else {
-            std::cerr << "Error acquiring context: " << GetLastError() << "\n";
+            cerr << "Error acquiring context: " << GetLastError() << "\n";
             return false;
         }
     }
@@ -37,11 +39,11 @@ bool DigitalSignatureManager::init() {
         if (GetLastError() == NTE_NO_KEY) {
             // Generate if not found
             if (!CryptGenKey(hProv, AT_SIGNATURE, CRYPT_EXPORTABLE, &hKey)) {
-                std::cerr << "Error generating key: " << GetLastError() << "\n";
+                cerr << "Error generating key: " << GetLastError() << "\n";
                 return false;
             }
         } else {
-            std::cerr << "Error getting user key: " << GetLastError() << "\n";
+            cerr << "Error getting user key: " << GetLastError() << "\n";
             return false;
         }
     }
@@ -49,31 +51,31 @@ bool DigitalSignatureManager::init() {
     return true;
 }
 
-std::string DigitalSignatureManager::signData(const std::string& data) {
+string DigitalSignatureManager::signData(const string& data) {
     HCRYPTHASH hHash = 0;
-    std::string signature = "";
+    string signature = "";
 
     if (!CryptCreateHash(hProv, CALG_SHA_256, 0, 0, &hHash)) {
-        std::cerr << "Error during CryptCreateHash." << std::endl;
+        cerr << "Error during CryptCreateHash." << endl;
         return "";
     }
 
     if (!CryptHashData(hHash, (BYTE*)data.c_str(), data.length(), 0)) {
-        std::cerr << "Error during CryptHashData." << std::endl;
+        cerr << "Error during CryptHashData." << endl;
         CryptDestroyHash(hHash);
         return "";
     }
 
     DWORD dwSigLen = 0;
     if (!CryptSignHash(hHash, AT_SIGNATURE, NULL, 0, NULL, &dwSigLen)) {
-        std::cerr << "Error during CryptSignHash (length)." << std::endl;
+        cerr << "Error during CryptSignHash (length)." << endl;
         CryptDestroyHash(hHash);
         return "";
     }
 
-    std::vector<BYTE> pbSignature(dwSigLen);
+    vector<BYTE> pbSignature(dwSigLen);
     if (!CryptSignHash(hHash, AT_SIGNATURE, NULL, 0, pbSignature.data(), &dwSigLen)) {
-        std::cerr << "Error during CryptSignHash (data)." << std::endl;
+        cerr << "Error during CryptSignHash (data)." << endl;
         CryptDestroyHash(hHash);
         return "";
     }
@@ -83,7 +85,7 @@ std::string DigitalSignatureManager::signData(const std::string& data) {
     return signature;
 }
 
-bool DigitalSignatureManager::verifySignature(const std::string& data, const std::string& signatureBase64) {
+bool DigitalSignatureManager::verifySignature(const string& data, const string& signatureBase64) {
     HCRYPTHASH hHash = 0;
     HCRYPTKEY hPubKey = 0; // We would normally load the public key here. 
                            // For this demo, since we are in the same session/object, we use the key pair we generated.
@@ -103,10 +105,10 @@ bool DigitalSignatureManager::verifySignature(const std::string& data, const std
         return false;
     }
 
-    std::vector<BYTE> pbSignature = base64Decode(signatureBase64);
+    vector<BYTE> pbSignature = base64Decode(signatureBase64);
 
     if (!CryptVerifySignature(hHash, pbSignature.data(), pbSignature.size(), hKey, NULL, 0)) {
-        // std::cerr << "Signature verification failed." << std::endl; // Optional logging
+        // cerr << "Signature verification failed." << endl; // Optional logging
         CryptDestroyHash(hHash);
         return false;
     }
@@ -115,8 +117,8 @@ bool DigitalSignatureManager::verifySignature(const std::string& data, const std
     return true;
 }
 
-std::string DigitalSignatureManager::base64Encode(const std::vector<BYTE>& data) {
-    std::string ret;
+string DigitalSignatureManager::base64Encode(const vector<BYTE>& data) {
+    string ret;
     int i = 0;
     int j = 0;
     unsigned char char_array_3[3];
@@ -157,13 +159,13 @@ std::string DigitalSignatureManager::base64Encode(const std::vector<BYTE>& data)
     return ret;
 }
 
-std::vector<BYTE> DigitalSignatureManager::base64Decode(const std::string& encoded_string) {
+vector<BYTE> DigitalSignatureManager::base64Decode(const string& encoded_string) {
     size_t in_len = encoded_string.size();
     int i = 0;
     int j = 0;
     int in_ = 0;
     unsigned char char_array_4[4], char_array_3[3];
-    std::vector<BYTE> ret;
+    vector<BYTE> ret;
 
     while (in_len-- && ( encoded_string[in_] != '=') && (isalnum(encoded_string[in_]) || (encoded_string[in_] == '+') || (encoded_string[in_] == '/'))) {
         char_array_4[i++] = encoded_string[in_]; in_++;

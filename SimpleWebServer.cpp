@@ -4,6 +4,8 @@
 #include <sstream>
 #include <algorithm>
 
+using namespace std;
+
 SimpleWebServer::SimpleWebServer(HospitalController* ctrl, int p) : controller(ctrl), port(p), isRunning(false), serverSocket(INVALID_SOCKET) {}
 
 SimpleWebServer::~SimpleWebServer() {
@@ -22,7 +24,7 @@ void SimpleWebServer::stop() {
 void SimpleWebServer::start() {
     WSADATA wsaData;
     if (WSAStartup(MAKEWORD(2, 2), &wsaData) != 0) {
-        std::cerr << "WSAStartup failed.\n";
+        cerr << "WSAStartup failed.\n";
         return;
     }
 
@@ -33,23 +35,23 @@ void SimpleWebServer::start() {
     hints.ai_protocol = IPPROTO_TCP;
     hints.ai_flags = AI_PASSIVE;
 
-    std::string portStr = std::to_string(port);
+    string portStr = to_string(port);
     if (getaddrinfo(NULL, portStr.c_str(), &hints, &result) != 0) {
-        std::cerr << "getaddrinfo failed.\n";
+        cerr << "getaddrinfo failed.\n";
         WSACleanup();
         return;
     }
 
     serverSocket = socket(result->ai_family, result->ai_socktype, result->ai_protocol);
     if (serverSocket == INVALID_SOCKET) {
-        std::cerr << "Error at socket(): " << WSAGetLastError() << "\n";
+        cerr << "Error at socket(): " << WSAGetLastError() << "\n";
         freeaddrinfo(result);
         WSACleanup();
         return;
     }
 
     if (bind(serverSocket, result->ai_addr, (int)result->ai_addrlen) == SOCKET_ERROR) {
-        std::cerr << "bind failed with error: " << WSAGetLastError() << "\n";
+        cerr << "bind failed with error: " << WSAGetLastError() << "\n";
         freeaddrinfo(result);
         closesocket(serverSocket);
         WSACleanup();
@@ -59,24 +61,24 @@ void SimpleWebServer::start() {
     freeaddrinfo(result);
 
     if (listen(serverSocket, SOMAXCONN) == SOCKET_ERROR) {
-        std::cerr << "Listen failed with error: " << WSAGetLastError() << "\n";
+        cerr << "Listen failed with error: " << WSAGetLastError() << "\n";
         closesocket(serverSocket);
         WSACleanup();
         return;
     }
 
     isRunning = true;
-    std::cout << "Web Server started on http://localhost:" << port << "\n";
+    cout << "Web Server started on http://localhost:" << port << "\n";
 
     while (isRunning) {
         SOCKET clientSocket = accept(serverSocket, NULL, NULL);
         if (clientSocket == INVALID_SOCKET) {
-            if (isRunning) std::cerr << "accept failed: " << WSAGetLastError() << "\n";
+            if (isRunning) cerr << "accept failed: " << WSAGetLastError() << "\n";
             continue;
         }
         
         // Handle in a new thread (detached for simplicity in this demo)
-        std::thread(&SimpleWebServer::handleClient, this, clientSocket).detach();
+        thread(&SimpleWebServer::handleClient, this, clientSocket).detach();
     }
 }
 
@@ -85,15 +87,15 @@ void SimpleWebServer::handleClient(SOCKET clientSocket) {
         char buffer[4096];
         int bytesReceived = recv(clientSocket, buffer, 4096, 0);
         if (bytesReceived > 0) {
-            std::string request(buffer, bytesReceived);
-            std::istringstream iss(request);
-            std::string method, path, protocol;
+            string request(buffer, bytesReceived);
+            istringstream iss(request);
+            string method, path, protocol;
             iss >> method >> path >> protocol;
 
-            std::cout << "Request: " << method << " " << path << "\n";
+            cout << "Request: " << method << " " << path << "\n";
             
-            std::string response;
-            std::string contentType = "text/html";
+            string response;
+            string contentType = "text/html";
             
             // CORS Preflight
             if (method == "OPTIONS") {
@@ -103,9 +105,9 @@ void SimpleWebServer::handleClient(SOCKET clientSocket) {
                 // Simple routing
                 if (path.find("/api/") == 0) {
                     // Extract body if POST
-                    std::string body = "";
+                    string body = "";
                     size_t bodyPos = request.find("\r\n\r\n");
-                    if (bodyPos != std::string::npos) {
+                    if (bodyPos != string::npos) {
                         body = request.substr(bodyPos + 4);
                     }
                     response = handleApiRequest(method, path, body);
@@ -113,7 +115,7 @@ void SimpleWebServer::handleClient(SOCKET clientSocket) {
                 } else {
                     if (path == "/") path = "/index.html";
                     // Remove leading slash for file path
-                    std::string filePath = "www" + path; 
+                    string filePath = "www" + path; 
                     response = readFile(filePath);
                     contentType = getContentType(filePath);
                     if (response.empty()) {
@@ -123,9 +125,9 @@ void SimpleWebServer::handleClient(SOCKET clientSocket) {
                 }
             }
 
-            std::string header = "HTTP/1.1 200 OK\r\n"
+            string header = "HTTP/1.1 200 OK\r\n"
                                  "Content-Type: " + contentType + "\r\n"
-                                 "Content-Length: " + std::to_string(response.size()) + "\r\n"
+                                 "Content-Length: " + to_string(response.size()) + "\r\n"
                                  "Cache-Control: no-cache, no-store, must-revalidate\r\n"
                                  "Pragma: no-cache\r\n"
                                  "Expires: 0\r\n"
@@ -137,32 +139,32 @@ void SimpleWebServer::handleClient(SOCKET clientSocket) {
             send(clientSocket, header.c_str(), header.size(), 0);
             send(clientSocket, response.c_str(), response.size(), 0);
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Error in handleClient: " << e.what() << "\n";
+    } catch (const exception& e) {
+        cerr << "Error in handleClient: " << e.what() << "\n";
     } catch (...) {
-        std::cerr << "Unknown error in handleClient\n";
+        cerr << "Unknown error in handleClient\n";
     }
     closesocket(clientSocket);
 }
 
-std::string SimpleWebServer::getContentType(const std::string& path) {
-    if (path.find(".html") != std::string::npos) return "text/html";
-    if (path.find(".css") != std::string::npos) return "text/css";
-    if (path.find(".js") != std::string::npos) return "application/javascript";
+string SimpleWebServer::getContentType(const string& path) {
+    if (path.find(".html") != string::npos) return "text/html";
+    if (path.find(".css") != string::npos) return "text/css";
+    if (path.find(".js") != string::npos) return "application/javascript";
     return "text/plain";
 }
 
-std::string SimpleWebServer::readFile(const std::string& path) {
-    std::ifstream file(path, std::ios::binary);
+string SimpleWebServer::readFile(const string& path) {
+    ifstream file(path, ios::binary);
     if (!file) return "";
-    std::stringstream buffer;
+    stringstream buffer;
     buffer << file.rdbuf();
     return buffer.str();
 }
 
 // --- API Implementation ---
 
-std::string SimpleWebServer::handleApiRequest(const std::string& method, const std::string& path, const std::string& body) {
+string SimpleWebServer::handleApiRequest(const string& method, const string& path, const string& body) {
     if (path == "/api/drugs" && method == "GET") return jsonDrugs();
     if (path == "/api/report" && method == "GET") return jsonReport();
     if (path == "/api/dashboard" && method == "GET") return jsonDashboard();
@@ -170,7 +172,7 @@ std::string SimpleWebServer::handleApiRequest(const std::string& method, const s
     return "{\"error\": \"Endpoint not found\"}";
 }
 
-std::string SimpleWebServer::jsonDashboard() {
+string SimpleWebServer::jsonDashboard() {
     float revenue = controller->getDailyRevenue();
     
     int lowStockCount = 0;
@@ -181,13 +183,13 @@ std::string SimpleWebServer::jsonDashboard() {
     int pendingRx = controller->getPendingPrescriptions().size();
 
     auto& transactions = controller->getTransactions();
-    std::string recentTx = "[";
+    string recentTx = "[";
     int count = 0;
     // Get last 5 transactions
     for (auto it = transactions.rbegin(); it != transactions.rend() && count < 5; ++it, ++count) {
         recentTx += "{";
-        recentTx += "\"id\": " + std::to_string(it->id) + ",";
-        recentTx += "\"amount\": " + std::to_string(it->amount) + ",";
+        recentTx += "\"id\": " + to_string(it->id) + ",";
+        recentTx += "\"amount\": " + to_string(it->amount) + ",";
         recentTx += "\"date\": \"" + it->date + "\",";
         recentTx += "\"method\": \"" + it->paymentMethod + "\"";
         recentTx += "}";
@@ -195,23 +197,23 @@ std::string SimpleWebServer::jsonDashboard() {
     }
     recentTx += "]";
 
-    std::string json = "{";
-    json += "\"revenue\": " + std::to_string(revenue) + ",";
-    json += "\"lowStock\": " + std::to_string(lowStockCount) + ",";
-    json += "\"pendingRx\": " + std::to_string(pendingRx) + ",";
+    string json = "{";
+    json += "\"revenue\": " + to_string(revenue) + ",";
+    json += "\"lowStock\": " + to_string(lowStockCount) + ",";
+    json += "\"pendingRx\": " + to_string(pendingRx) + ",";
     json += "\"recentTransactions\": " + recentTx;
     json += "}";
     return json;
 }
 
-std::string SimpleWebServer::jsonDrugs() {
+string SimpleWebServer::jsonDrugs() {
     auto& drugs = controller->getDrugs();
-    std::string json = "[";
+    string json = "[";
     for (size_t i = 0; i < drugs.size(); ++i) {
         json += "{";
         json += "\"name\": \"" + drugs[i].name + "\",";
-        json += "\"quantity\": " + std::to_string(drugs[i].quantity) + ",";
-        json += "\"price\": " + std::to_string(drugs[i].price) + ",";
+        json += "\"quantity\": " + to_string(drugs[i].quantity) + ",";
+        json += "\"price\": " + to_string(drugs[i].price) + ",";
         json += "\"expiry\": \"" + drugs[i].expiryDate + "\"";
         json += "}";
         if (i < drugs.size() - 1) json += ",";
@@ -220,29 +222,29 @@ std::string SimpleWebServer::jsonDrugs() {
     return json;
 }
 
-std::string SimpleWebServer::jsonReport() {
-    std::string json = "{";
-    json += "\"revenue\": " + std::to_string(controller->getDailyRevenue()) + ",";
-    json += "\"total_users\": " + std::to_string(DataManager::loadUsers().size()); // Direct load for simplicity or add getter to controller
+string SimpleWebServer::jsonReport() {
+    string json = "{";
+    json += "\"revenue\": " + to_string(controller->getDailyRevenue()) + ",";
+    json += "\"total_users\": " + to_string(DataManager::loadUsers().size()); // Direct load for simplicity or add getter to controller
     json += "}";
     return json;
 }
 
-std::string SimpleWebServer::jsonLogin(const std::string& body) {
+string SimpleWebServer::jsonLogin(const string& body) {
     // Very simple parsing for "username=foo&password=bar" or JSON
     // Assuming JSON for simplicity in this "AI" context, but let's do simple string find
     // Actually, let's assume the frontend sends raw JSON: {"username": "u", "password": "p"}
     
-    std::string u, p;
+    string u, p;
     size_t uPos = body.find("\"username\":");
-    if (uPos != std::string::npos) {
+    if (uPos != string::npos) {
         size_t start = body.find("\"", uPos + 11) + 1;
         size_t end = body.find("\"", start);
         u = body.substr(start, end - start);
     }
     
     size_t pPos = body.find("\"password\":");
-    if (pPos != std::string::npos) {
+    if (pPos != string::npos) {
         size_t start = body.find("\"", pPos + 11) + 1;
         size_t end = body.find("\"", start);
         p = body.substr(start, end - start);
